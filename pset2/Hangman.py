@@ -4,8 +4,7 @@ An implementation of the game Hangman.
 Author: James LaFarr
 Version: 12.22.22
 """
-
-from english_words import english_words_lower_alpha_set
+from english_words import get_english_words_set
 from random import choice
 
 
@@ -16,8 +15,8 @@ def print_greeting() -> None:
 
 class Hangman:
     def __init__(self):
-        self._word: str = choice(list(english_words_lower_alpha_set))
-        self._lives_left: int = 3
+        self._word: str = choice(list(get_english_words_set(['web2'], lower=True)))
+        self._lives_left: int = 5
         self._correct_guesses = 0
         self._letters_guessed: list[str] = list()
         self._play()
@@ -49,15 +48,23 @@ class Hangman:
         print(partial_word)
 
     def _play(self):
+        print(self._word)
         print_greeting()
-        while self._lives_left > 0 and self._correct_guesses != len(self._word):
+        while self._lives_left > 0:
             self._print_partial_word()
             self.print_wordbank()
             guess: str = input("What is your guess? ")
             while not self.valid_guess(guess):
                 guess = input("Guess is invalid: ")
             correct = self._guess(guess)
-            if correct:
+            count: int = 0
+            for letter in self._word:
+                if letter in self._letters_guessed:
+                    count += 1
+            win: bool = count == len(self._word)
+            if win:
+                break
+            elif correct:
                 print(f"Correct. There are {len(self._word) - self._correct_guesses} left.")
             else:
                 print(f"Wrong! You now have {self._lives_left} lives left")
